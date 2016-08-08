@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">PinyinDroid</string>
+    <string name="title_activity_learn">LearnActivity</string>
+</resources>
