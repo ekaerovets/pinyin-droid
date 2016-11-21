@@ -16,8 +16,9 @@ public class Item {
     private double diff;
     private boolean mark;
     private String example;
+    private String radix;
     private boolean used;
-    private int answerStatus;
+    private Difficulty answerStatus;
 
     public String getKey() {
         return key;
@@ -88,6 +89,14 @@ public class Item {
         this.example = example;
     }
 
+    public String getRadix() {
+        return radix;
+    }
+
+    public void setRadix(String radix) {
+        this.radix = radix;
+    }
+
     public boolean isUsed() {
         return used;
     }
@@ -96,11 +105,11 @@ public class Item {
         this.used = used;
     }
 
-    public int getAnswerStatus() {
+    public Difficulty getAnswerStatus() {
         return answerStatus;
     }
 
-    public void setAnswerStatus(int answerStatus) {
+    public void setAnswerStatus(Difficulty answerStatus) {
         this.answerStatus = answerStatus;
     }
 }

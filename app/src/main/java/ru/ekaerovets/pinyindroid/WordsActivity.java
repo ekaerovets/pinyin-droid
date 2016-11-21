@@ -57,7 +57,7 @@ public class WordsActivity extends AppCompatActivity {
                 continue;
             }
             if (i < 5) {
-                updateDiff(p, p.getAnswerStatus() == 1);
+                updateDiff(p, p.getAnswerStatus());
             }
             dataHolder.freeChar(p);
         }
@@ -68,8 +68,8 @@ public class WordsActivity extends AppCompatActivity {
     public void onNextClick(View v) {
         Item p = data[0];
         if (p != null) {
-            updateDiff(p, p.getAnswerStatus() == 1);
-            p.setAnswerStatus(0);
+            updateDiff(p, p.getAnswerStatus());
+            p.setAnswerStatus(null);
             dataHolder.freeChar(p);
         }
         System.arraycopy(data, 1, data, 0, 9);
@@ -94,20 +94,35 @@ public class WordsActivity extends AppCompatActivity {
     }
 
     public void onToggleClick(View v) {
-        if (data[4] != null) {
-            data[4].setAnswerStatus(1 - data[4].getAnswerStatus());
-            ((TextView) findViewById(R.id.twWord)).setTextColor(data[4].getAnswerStatus() == 1 ? Color.RED : Color.BLACK);
-
+        Item item = data[4];
+        if (item != null) {
+            Difficulty diff = item.getAnswerStatus();
+            int color;
+            if (diff == null) {
+                diff = Difficulty.DIFFICULT;
+                color = Color.RED;
+            } else if (diff == Difficulty.DIFFICULT) {
+                diff = Difficulty.TRIVIAL;
+                color = Color.GREEN;
+            } else {
+                diff = null;
+                color = Color.BLACK;
+            }
+            item.setAnswerStatus(diff);
+            ((TextView) findViewById(R.id.twWord)).setTextColor(color);
         }
     }
 
 
-    private void updateDiff(Item p, boolean isDiff) {
-        if (isDiff) {
+    private void updateDiff(Item p, Difficulty diff) {
+        if (diff == Difficulty.DIFFICULT) {
             p.setDiff(p.getDiff() + K_DIFF * randNear());
             if (p.getDiff() > DIFF_MAX) {
                 p.setDiff(DIFF_MAX);
             }
+        } else if (diff == Difficulty.TRIVIAL) {
+            p.setDiff(-1);
+            p.setStage(4);
         } else {
             if (p.getDiff() > 0.05) {
                 p.setDiff(p.getDiff() * 0.45 * randNear());
@@ -118,7 +133,7 @@ public class WordsActivity extends AppCompatActivity {
             }
             if (p.getDiff() < DIFF_MIN) {
                 p.setDiff(-1);
-                p.setStage(1);
+                p.setStage(4);
             }
         }
     }

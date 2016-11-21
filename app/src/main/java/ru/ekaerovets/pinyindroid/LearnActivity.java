@@ -3,7 +3,6 @@ package ru.ekaerovets.pinyindroid;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -20,6 +19,7 @@ public class LearnActivity extends AppCompatActivity implements ShowItemCallback
     int count = 0;
 
     NumberFormat formatter = new DecimalFormat("#0.00");
+    NumberFormat cumulFormatter = new DecimalFormat("#0.0000");
     private Item current;
     private boolean isChars;
 
@@ -37,14 +37,16 @@ public class LearnActivity extends AppCompatActivity implements ShowItemCallback
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d("SPEED", "Before file");
         String json = DataService.loadFromFile(this);
-        Log.d("SPEED", "File done");
         dataHolder = new DataHolder(json, isChars ? 1 : 2);
-        Log.d("SPEED", "Create dh");
         pinyinView.attachDataHolder(dataHolder);
         count = 0;
-        Log.d("SPEED", "Load end");
+        ((TextView) findViewById(R.id.tvZi)).setText("");
+        ((TextView) findViewById(R.id.tvPinyin)).setText("");
+        ((TextView) findViewById(R.id.tvMeaning)).setText("");
+        ((TextView) findViewById(R.id.tvDiff)).setText("");
+        ((CheckBox) findViewById(R.id.chbMark)).setChecked(false);
+        ((TextView) findViewById(R.id.tvSimilar)).setText("");
     }
 
     @Override
@@ -68,20 +70,32 @@ public class LearnActivity extends AppCompatActivity implements ShowItemCallback
         ((TextView) findViewById(R.id.tvZi)).setText(p == null ? "" : p.getKey());
         ((TextView) findViewById(R.id.tvPinyin)).setText(p == null ? "" : p.getValueOrig());
         ((TextView) findViewById(R.id.tvMeaning)).setText(p == null ? "" : getNotNull(dataHolder.getValue(p, isChars)));
-        ((TextView) findViewById(R.id.tvComment)).setText(p == null ? "" : getNotNull(p.getExample()));
         ((TextView) findViewById(R.id.tvDiff)).setText(p == null ? "" : formatDiff(p.getDiff()));
         ((CheckBox) findViewById(R.id.chbMark)).setChecked(p != null && p.isMark());
-        ((TextView) findViewById(R.id.tvSimilar)).setText(isChars || p == null ? "" :
-                Html.fromHtml(dataHolder.getPinyinSimilar(p)), TextView.BufferType.SPANNABLE);
+        String similar = null;
+        if (isChars) {
+            if (p != null && p.getRadix() != null) {
+                similar = "<font color=\"#00ff00\">" + p.getRadix() + "</font>";
+            }
+        } else {
+            if (p != null) {
+                similar = dataHolder.getPinyinSimilar(p);
+            }
+        }
+        ((TextView) findViewById(R.id.tvSimilar)).setText(similar == null ? "" : Html.fromHtml(similar),
+                TextView.BufferType.SPANNABLE);
     }
 
     public void onLearnNextClick(View v) {
         pinyinView.shiftLeft();
         Map<String, String> stat = dataHolder.getStat();
         String s = stat.get("new") + " + " + stat.get("learn") + "\n" +
-                stat.get("sum");
+                cumulFormatter.format(Double.parseDouble(stat.get("sum")));
         ((TextView) findViewById(R.id.tvStat)).setText(s);
-        ((TextView) findViewById(R.id.tvCount)).setText(Integer.toString(++count));
+        int reviewSuccess = Integer.parseInt(stat.get("review_success"));
+        int reviewFail = Integer.parseInt(stat.get("review_fail"));
+        String review = reviewSuccess + "/" + (reviewSuccess + reviewFail) + " (" + formatter.format(100.0 * reviewSuccess / (reviewSuccess + reviewFail)) + "%)";
+        ((TextView) findViewById(R.id.tvCount)).setText(Integer.toString(++count) + "\n" + review);
     }
 
     public void onMarkClick(View v) {
@@ -96,8 +110,10 @@ public class LearnActivity extends AppCompatActivity implements ShowItemCallback
         pinyinView.toggle();
     }
 
-    public void onPlecoClick(View v) {
-
+    public void onTriviaClick(View v) {
+        pinyinView.setTrivia();
+        pinyinView.invalidate();
     }
+
 
 }

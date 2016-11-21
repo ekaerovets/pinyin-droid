@@ -11,9 +11,6 @@ import android.view.View;
 
 public class PinyinView extends View {
 
-    public static final double DIFF_MIN = 0.0015;
-    public static final double DIFF_MAX = 2;
-
     DataHolder holder;
     ShowItemCallback showCallback;
 
@@ -49,6 +46,11 @@ public class PinyinView extends View {
         int ziNormal = Color.rgb(60, 60, 60);
         int ziDiff = Color.RED;
 
+        int ziTrivia = Color.GREEN;
+
+        int ziReview = Color.rgb(13, 84, 0);
+        int ziQueue = Color.rgb(114, 0, 95);
+
         p.setTextSize(60);
         p.setAntiAlias(true);
 
@@ -58,7 +60,18 @@ public class PinyinView extends View {
                 continue;
             }
             int x = i * 70 - 80;
-            p.setColor(pin.getAnswerStatus() == 1 ? ziDiff : ziNormal);
+            if (pin.getAnswerStatus() == Difficulty.DIFFICULT) {
+                p.setColor(ziDiff);
+            } else if (pin.getAnswerStatus() == Difficulty.TRIVIAL) {
+                p.setColor(ziTrivia);
+            } else if (pin.getAnswerStatus() == Difficulty.REVIEW) {
+                p.setColor(ziReview);
+            } else if (pin.getAnswerStatus() == Difficulty.QUEUED) {
+                p.setColor(ziQueue);
+            } else {
+                p.setColor(ziNormal);
+            }
+
             canvas.drawText(pin.getKey(), x, 90, p);
         }
 
@@ -114,7 +127,7 @@ public class PinyinView extends View {
                     continue;
                 }
                 if (i < 5) {
-                    updateDiff(p, p.getAnswerStatus() == 1);
+                    updateDiff(p, p.getAnswerStatus());
                 }
                 holder.freeChar(p);
             }
@@ -123,31 +136,48 @@ public class PinyinView extends View {
 
     public void toggle() {
         if (data[4] != null) {
-            data[4].setAnswerStatus(1 - data[4].getAnswerStatus());
+            Difficulty prevStatus = data[4].getAnswerStatus();
+            if (prevStatus == Difficulty.REVIEW) {
+                data[4].setAnswerStatus(Difficulty.QUEUED);
+            } else if (prevStatus == Difficulty.QUEUED) {
+                data[4].setAnswerStatus(Difficulty.REVIEW);
+            } else {
+                data[4].setAnswerStatus(prevStatus != Difficulty.DIFFICULT ?
+                        Difficulty.DIFFICULT : null);
+            }
             invalidate();
         }
     }
 
-    private void updateDiff(Item p, boolean isDiff) {
-        if (isDiff) {
-            p.setDiff(p.getDiff() + 0.4);
-            if (p.getDiff() > 2) {
-                p.setDiff(2);
-            }
-        } else {
-            p.setDiff(p.getDiff() / 3.0);
-            if (p.getDiff() < (1 / 2500.0)) {
+    public void setTrivia() {
+        if (data[4] != null) {
+            data[4].setAnswerStatus(Difficulty.TRIVIAL);
+        }
+    }
+
+    private void updateDiff(Item p, Difficulty diff) {
+        if (diff == Difficulty.DIFFICULT) {
+            p.setDiff(0.4);
+        } else if (diff == null) {
+            // normal
+            p.setDiff(p.getDiff() / 5);
+            if (p.getDiff() < (0.01)) {
                 p.setDiff(-1);
                 p.setStage(1);
             }
+        } else if (diff == Difficulty.TRIVIAL) {
+            p.setStage(1);
+            p.setDiff(-1);
+        } else if (diff == Difficulty.QUEUED) {
+            p.setStage(2);
+            p.setDiff(-1);
         }
     }
 
     public void shiftLeft() {
         Item p = data[0];
         if (p != null) {
-            updateDiff(p, p.getAnswerStatus() == 1);
-            p.setAnswerStatus(0);
+            updateDiff(p, p.getAnswerStatus());
             holder.freeChar(p);
         }
         System.arraycopy(data, 1, data, 0, 9);
@@ -178,7 +208,15 @@ public class PinyinView extends View {
             showCallback.show(data[index]);
         } else {
             if (data[index] != null) {
-                data[index].setAnswerStatus(1 - data[index].getAnswerStatus());
+                Difficulty prevStatus = data[index].getAnswerStatus();
+                if (prevStatus == Difficulty.REVIEW) {
+                    data[index].setAnswerStatus(Difficulty.QUEUED);
+                } else if (prevStatus == Difficulty.QUEUED) {
+                    data[index].setAnswerStatus(Difficulty.REVIEW);
+                } else {
+                    data[index].setAnswerStatus(prevStatus != Difficulty.DIFFICULT ?
+                            Difficulty.DIFFICULT : null);
+                }
             }
         }
 

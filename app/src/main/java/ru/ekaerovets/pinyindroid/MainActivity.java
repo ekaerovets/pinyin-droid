@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onSyncClick(View view) {
         progressDialog = ProgressDialog.show(this, "Sync", "Sync in progress");
-        String syncUrl = "http://192.168.0.103:8080/rest/sync_pinyin";
+        String syncUrl = "http://192.168.0.117:8080/rest/sync_pinyin";
         DataService.sync(this, null, syncUrl, new AjaxHandler() {
             @Override
             public void handle(View v, final int statusCode, String response) {

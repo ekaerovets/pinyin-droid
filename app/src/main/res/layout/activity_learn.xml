@@ -9,120 +9,155 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ru.ekaerovets.pinyindroid.LearnActivity">
 
-    <ru.ekaerovets.pinyindroid.PinyinView
-        android:layout_width="wrap_content"
-        android:layout_height="200dp"
-        android:id="@+id/pinyinView"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentEnd="true">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=">>"
-        android:id="@+id/btnNext"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="46dp"
-        android:onClick="onLearnNextClick" />
+        <ru.ekaerovets.pinyindroid.PinyinView
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:id="@+id/pinyinView"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/tvZi"
-        android:layout_below="@+id/pinyinView"
-        android:layout_centerHorizontal="true"
-        android:textColor="#000000"
-        android:textSize="30dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/tvZi"
+            android:layout_below="@+id/pinyinView"
+            android:layout_centerHorizontal="true"
+            android:textColor="#000000"
+            android:textSize="30dp"
+            android:text="Zi"
+            android:layout_gravity="center_horizontal" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/tvPinyin"
-        android:layout_below="@+id/tvZi"
-        android:layout_centerHorizontal="true" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/tvPinyin"
+            android:layout_below="@+id/tvZi"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:text="pin" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/tvMeaning"
-        android:layout_below="@+id/tvPinyin"
-        android:layout_centerHorizontal="true" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/tvMeaning"
+            android:layout_below="@+id/tvPinyin"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:text="meaning"
+            android:lines="2" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/tvDiff"
-        android:layout_below="@+id/tvMeaning"
-        android:layout_centerHorizontal="true" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/tvDiff"
+            android:layout_below="@+id/tvMeaning"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:password="false"
+            android:text="25.00" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/tvComment"
-        android:layout_below="@+id/tvDiff"
-        android:layout_centerHorizontal="true" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/tvSimilar"
+            android:textColor="#000000"
+            android:textSize="24dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/tvDiff"
+            android:layout_gravity="center_horizontal"
+            android:lines="3"
+            android:layout_weight="1" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/tvStat"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:minLines="2" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="0"
-        android:id="@+id/tvCount"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="trivia"
+                android:id="@+id/btnTrivia"
+                android:layout_alignTop="@+id/button"
+                android:layout_toEndOf="@+id/tvStat"
+                android:onClick="onTriviaClick" />
 
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Mark"
-        android:id="@+id/chbMark"
-        android:checked="false"
-        android:onClick="onMarkClick"
-        android:layout_alignBottom="@+id/button"
-        android:layout_toEndOf="@+id/btnPleco" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="x"
+                android:id="@+id/button"
+                android:onClick="onLearnToggleClick"
+                android:layout_alignTop="@+id/btnNext"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pleco"
-        android:id="@+id/btnPleco"
-        android:onClick="onPlecoClick"
-        android:layout_alignBottom="@+id/btnNext"
-        android:layout_alignParentStart="true"
-        android:visibility="gone" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=">>"
+                android:id="@+id/btnNext"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:onClick="onLearnNextClick" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="x"
-        android:id="@+id/button"
-        android:onClick="onLearnToggleClick"
-        android:layout_alignTop="@+id/btnNext"
-        android:layout_centerHorizontal="true" />
+        </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/tvSimilar"
-        android:textColor="#000000"
-        android:textSize="24dp"
-        android:layout_below="@+id/tvComment"
-        android:layout_centerHorizontal="true" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="55dp"
+            android:weightSum="3">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/tvStat"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:minLines="2"
+                android:text="10"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mark"
+                android:id="@+id/chbMark"
+                android:checked="false"
+                android:onClick="onMarkClick"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="0"
+                android:id="@+id/tvCount"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_weight="1"
+                android:gravity="right" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

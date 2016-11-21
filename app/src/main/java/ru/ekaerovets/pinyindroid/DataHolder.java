@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +24,16 @@ public class DataHolder {
     private List<Item> pinyins;
     private List<Item> words;
     private Map<String, String> pinyinMap;
+    private int currentType;
 
     private Map<String, String> pinMap;
     private Map<String, String> charMap;
 
     private List<Item> current;
+
+    private List<Item> review;
+    private int reviewSuccess = 0;
+    private int reviewFail = 0;
 
     public DataHolder(String json, int type) {
         Log.d("TAG", "new holder from string " + json.length());
@@ -42,6 +48,7 @@ public class DataHolder {
         Log.d("TAG", "total pinyins " + pinyins.size() + " and chars " + chars.size());
         buildPinyinMap();
         buildMaps();
+        currentType = type;
         if (type == 1) {
             current = chars;
         } else if (type == 2) {
@@ -49,6 +56,15 @@ public class DataHolder {
         } else {
             current = words;
         }
+
+        review = new ArrayList<>();
+        for (Item item: current) {
+            if (item.getStage() == 1 && (type == 2 || (type == 1 && item.getValueOrig().length() > 0))) {
+                review.add(item);
+            }
+        }
+        Collections.shuffle(review);
+
     }
 
     private void buildMaps() {
@@ -81,6 +97,9 @@ public class DataHolder {
             item.setDiff(obj.getDouble("diff"));
             if (obj.has("example")) {
                 item.setExample(obj.getString("example"));
+            }
+            if (obj.has("radix")) {
+                item.setRadix(obj.getString("radix"));
             }
             item.setUsed(false);
             item.setMark(obj.getBoolean("mark"));
@@ -153,7 +172,13 @@ public class DataHolder {
     }
 
     public void freeChar(Item item) {
+        if (item.getAnswerStatus() == Difficulty.REVIEW) {
+            reviewSuccess++;
+        } else if (item.getAnswerStatus() == Difficulty.QUEUED) {
+            reviewFail++;
+        }
         item.setUsed(false);
+        item.setAnswerStatus(null);
     }
 
     public Item fetchItem() {
@@ -161,6 +186,7 @@ public class DataHolder {
         Item[] items = new Item[current.size()];
         double sum = 0;
         int nValid = 0;
+        int nActive = 0;
         Item toAdd = null;
         for (Item o : current) {
             if (o.isUsed() || o.getStage() != 2) {
@@ -168,12 +194,14 @@ public class DataHolder {
             }
             if (o.getDiff() < 0) {
                 toAdd = o;
+                nActive++;
                 continue;
             }
             sum += o.getDiff();
             k[nValid] = sum;
             items[nValid] = o;
             nValid++;
+            nActive++;
         }
         if (sum < 10 && toAdd != null) {
             sum += 0.4;
@@ -181,6 +209,11 @@ public class DataHolder {
             k[nValid] = sum;
             items[nValid] = toAdd;
             nValid++;
+        }
+        if (review.size() > 0 && Math.random() < getProbForNValid(nActive)) {
+            Item res = review.remove(review.size() - 1);
+            res.setAnswerStatus(Difficulty.REVIEW);
+            return res;
         }
         double res = sum * Math.random();
         for (int i = 0; i < nValid; i++) {
@@ -224,6 +257,9 @@ public class DataHolder {
             if (item.getExample() != null) {
                 obj.put("example", item.getExample());
             }
+            if (item.getRadix() != null) {
+                obj.put("radix", item.getRadix());
+            }
             obj.put("mark", item.isMark());
             res.put(obj);
         }
@@ -248,7 +284,22 @@ public class DataHolder {
         res.put("learn", Integer.toString(learn));
         res.put("new", Integer.toString(newItems));
         res.put("sum", Double.toString(sum));
+        res.put("review_queue", Integer.toString(review.size()));
+        res.put("review_success", Integer.toString(reviewSuccess));
+        res.put("review_fail", Integer.toString(reviewFail));
         return res;
+    }
+
+    private double getProbForNValid(int nValid) {
+        if (nValid < 20) {
+            return 0.8;
+        } else if (nValid < 100) {
+            return (100.0 - nValid) / 160.0 + 0.3;
+        } else if (nValid < 200) {
+            return (200.0 - nValid) * 0.003;
+        } else {
+            return 0;
+        }
     }
 
 }
