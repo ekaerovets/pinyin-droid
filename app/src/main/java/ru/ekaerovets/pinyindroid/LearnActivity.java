@@ -9,12 +9,15 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Date;
 import java.util.Map;
 
 public class LearnActivity extends AppCompatActivity implements ShowItemCallback {
 
     private DataHolder dataHolder;
     private PinyinView pinyinView;
+
+    private StatEntry statEntry;
 
     int count = 0;
 
@@ -40,6 +43,8 @@ public class LearnActivity extends AppCompatActivity implements ShowItemCallback
         String json = DataService.loadFromFile(this);
         dataHolder = new DataHolder(json, isChars ? 1 : 2);
         pinyinView.attachDataHolder(dataHolder);
+        statEntry = new StatEntry();
+        statEntry.setType(isChars ? 'c' : 'p');
         count = 0;
         ((TextView) findViewById(R.id.tvZi)).setText("");
         ((TextView) findViewById(R.id.tvPinyin)).setText("");
@@ -47,13 +52,16 @@ public class LearnActivity extends AppCompatActivity implements ShowItemCallback
         ((TextView) findViewById(R.id.tvDiff)).setText("");
         ((CheckBox) findViewById(R.id.chbMark)).setChecked(false);
         ((TextView) findViewById(R.id.tvSimilar)).setText("");
+        statEntry.setSessionStart(new Date());
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        pinyinView.freeDataHolder();
+        pinyinView.freeDataHolder(statEntry);
         DataService.saveToFile(this, dataHolder.getJson());
+        statEntry.setSessionEnd(new Date());
+        DataService.saveStat(this, statEntry);
     }
 
     private String getNotNull(String s) {
@@ -87,7 +95,7 @@ public class LearnActivity extends AppCompatActivity implements ShowItemCallback
     }
 
     public void onLearnNextClick(View v) {
-        pinyinView.shiftLeft();
+        pinyinView.shiftLeft(statEntry);
         Map<String, String> stat = dataHolder.getStat();
         String s = stat.get("new") + " + " + stat.get("learn") + "\n" +
                 cumulFormatter.format(Double.parseDouble(stat.get("sum")));

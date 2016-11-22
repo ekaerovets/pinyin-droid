@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             public void handle(View v, final int statusCode, String response) {
                 if (statusCode == 200) {
                     DataService.saveToFile(MainActivity.this, response);
+                    DataService.clearStat(MainActivity.this);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

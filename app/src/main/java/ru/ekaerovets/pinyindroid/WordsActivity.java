@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Date;
 import java.util.Map;
 
 public class WordsActivity extends AppCompatActivity {
@@ -25,6 +26,7 @@ public class WordsActivity extends AppCompatActivity {
     private int count = 0;
     Item[] data = new Item[10];
 
+    private StatEntry stat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,9 @@ public class WordsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         String json = DataService.loadFromFile(this);
+        stat = new StatEntry();
+        stat.setType('w');
+        stat.setSessionStart(new Date());
         dataHolder = new DataHolder(json, 3);
         for (int i = 0; i < 10; i++) {
             if (i < 5) {
@@ -58,10 +63,12 @@ public class WordsActivity extends AppCompatActivity {
             }
             if (i < 5) {
                 updateDiff(p, p.getAnswerStatus());
+                stat.addItem(p.getAnswerStatus());
             }
             dataHolder.freeChar(p);
         }
         DataService.saveToFile(this, dataHolder.getJson());
+        DataService.saveStat(this, stat);
     }
 
 
@@ -69,6 +76,7 @@ public class WordsActivity extends AppCompatActivity {
         Item p = data[0];
         if (p != null) {
             updateDiff(p, p.getAnswerStatus());
+            stat.addItem(p.getAnswerStatus());
             p.setAnswerStatus(null);
             dataHolder.freeChar(p);
         }

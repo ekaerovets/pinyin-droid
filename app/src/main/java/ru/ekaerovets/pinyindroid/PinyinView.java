@@ -119,7 +119,7 @@ public class PinyinView extends View {
         return 0.97 + 0.06 * r;
     }
 
-    public void freeDataHolder() {
+    public void freeDataHolder(StatEntry entry) {
         if (holder != null) {
             for (int i = 0; i < 10; i++) {
                 Item p = data[i];
@@ -128,6 +128,7 @@ public class PinyinView extends View {
                 }
                 if (i < 5) {
                     updateDiff(p, p.getAnswerStatus());
+                    entry.addItem(p.getAnswerStatus());
                 }
                 holder.freeChar(p);
             }
@@ -174,10 +175,11 @@ public class PinyinView extends View {
         }
     }
 
-    public void shiftLeft() {
+    public void shiftLeft(StatEntry e) {
         Item p = data[0];
         if (p != null) {
             updateDiff(p, p.getAnswerStatus());
+            e.addItem(p.getAnswerStatus());
             holder.freeChar(p);
         }
         System.arraycopy(data, 1, data, 0, 9);
