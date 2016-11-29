@@ -1,84 +1,76 @@
 package ru.ekaerovets.pinyindroid;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Created by laby on 04.06.16.
+ * @author karyakin dmitry
+ *         date 30.10.15.
  */
 public class Item {
 
-    private String key;
-    private List<String> value;
-    private String wordMeaning;
-    private String valueOrig;
+    // the key. A single character or a word
+    private String word;
+
+    // Meaning of the character / word
+    private String meaning;
+
+    private String pinyin;
+    // Pronunciation of the character / word
+
+    // stage: 1 - trivia, 2 - learn, 3 - new
     private int stage;
-    private double diff;
+
+    // for learn is -1 (queue), 25, 125, 625, for trivia is 4 to 128 or -1, for new is always -1
+    private int diff;
+
+    // due day. The 1st lesson with AV is the day 1. Days switch on midnight
+    private int due;
+
+    // Override flag. If there were any updates from PC, then this flag is set. Any changes from mobile will be lost
+    private transient boolean override;
+
+    // Mark flag. Just like using star in Anki
     private boolean mark;
+
+    // Free text - typically usage examples
     private String example;
-    private String radix;
-    private boolean used;
-    private Difficulty answerStatus;
 
-    public String getKey() {
-        return key;
+    // A special field that shows when the item can be reused again in review queue.
+    private transient int seqId;
+
+    // A special field that shows the current answer status for an item in mobile app
+    private transient int answerStatus;
+
+    // A special field to allow to mark characters/pinyins within a word as difficult
+    // each byte corresponds to a character.
+    // 0x01 mask indicates cursor, 0x02 - diff char, 0x04 - diff pinyin
+    // in most cases the field is nullable
+    private transient byte[] flags;
+
+    public Item() {
+
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public int getAnswerStatus() {
+        return answerStatus;
     }
 
-    public List<String> getValue() {
-        return value;
+    public void setAnswerStatus(int answerStatus) {
+        this.answerStatus = answerStatus;
     }
 
-    public String getValueOrig() {
-        return valueOrig;
-    }
-
-    public void setValueOrig(String valueOrig) {
-        this.valueOrig = valueOrig;
-    }
-
-    public void setValue(String value) {
-        this.valueOrig = value;
-        String[] items = value.split("/");
-        this.value = new ArrayList<>();
-        for (String item : items) {
-            this.value.add(item.trim());
-        }
-    }
-
-    public String getWordMeaning() {
-        return wordMeaning;
-    }
-
-    public void setWordMeaning(String wordMeaning) {
-        this.wordMeaning = wordMeaning;
-    }
-
-    public int getStage() {
-        return stage;
-    }
-
-    public void setStage(int stage) {
-        this.stage = stage;
-    }
-
-    public double getDiff() {
+    public int getDiff() {
         return diff;
     }
 
-    public void setDiff(double diff) {
+    public void setDiff(int diff) {
         this.diff = diff;
     }
 
-    public boolean isMark() {
-        return mark;
+    public int getDue() {
+        return due;
     }
 
-    public void setMark(boolean mark) {
-        this.mark = mark;
+    public void setDue(int due) {
+        this.due = due;
     }
 
     public String getExample() {
@@ -89,27 +81,67 @@ public class Item {
         this.example = example;
     }
 
-    public String getRadix() {
-        return radix;
+    public boolean isMark() {
+        return mark;
     }
 
-    public void setRadix(String radix) {
-        this.radix = radix;
+    public void setMark(boolean mark) {
+        this.mark = mark;
     }
 
-    public boolean isUsed() {
-        return used;
+    public String getMeaning() {
+        return meaning;
     }
 
-    public void setUsed(boolean used) {
-        this.used = used;
+    public void setMeaning(String meaning) {
+        this.meaning = meaning;
     }
 
-    public Difficulty getAnswerStatus() {
-        return answerStatus;
+    public boolean isOverride() {
+        return override;
     }
 
-    public void setAnswerStatus(Difficulty answerStatus) {
-        this.answerStatus = answerStatus;
+    public void setOverride(boolean override) {
+        this.override = override;
+    }
+
+    public String getPinyin() {
+        return pinyin;
+    }
+
+    public void setPinyin(String pinyin) {
+        this.pinyin = pinyin;
+    }
+
+    public int getSeqId() {
+        return seqId;
+    }
+
+    public void setSeqId(int seqId) {
+        this.seqId = seqId;
+    }
+
+    public int getStage() {
+        return stage;
+    }
+
+    public void setStage(int stage) {
+        this.stage = stage;
+    }
+
+    public String getWord() {
+        return word;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
+
+    public byte[] getFlags() {
+        return flags;
+    }
+
+    public void setFlags(byte[] flags) {
+        this.flags = flags;
     }
 }

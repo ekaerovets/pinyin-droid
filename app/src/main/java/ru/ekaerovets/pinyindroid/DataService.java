@@ -14,6 +14,31 @@ public class DataService {
 
     private static final String STAT_FILE = "stat.dat";
 
+    // todo: should be refactored somehow
+    // 1 - show the number of due items (black)
+    // 2 - show the number of suspended items (reddish)
+    // 3 - show the number of new items (blue)
+    // 4 - show the number of not due items (green)
+    // 5 - sum of the above (gray)
+    private static int[] summary = new int[15];
+
+    public static SyncData loadFromFile() {
+
+    }
+
+    public static void saveToFile(SyncData data) {
+
+    }
+
+    public static void sync(Context ctx, SyncResultHandler syncResultHandler) {
+
+    }
+
+    public static void updateSummary() {
+
+    }
+
+    @Deprecated
     public static void sync(Context ctx, View v, String url, AjaxHandler handler) {
         String input = loadFromFile(ctx);
         List<StatEntry> statEntries = loadAllStat(ctx);
@@ -21,6 +46,7 @@ public class DataService {
         AjaxHelper.asyncQuery(v, url, appendStat(in, statEntries), handler);
     }
 
+    @Deprecated
     public static void saveToFile(Context ctx, String json) {
         try {
             FileOutputStream out = ctx.openFileOutput(FILENAME, Context.MODE_PRIVATE);
@@ -31,6 +57,7 @@ public class DataService {
         }
     }
 
+    @Deprecated
     public static String loadFromFile(Context ctx) {
         try {
             FileInputStream in = ctx.openFileInput(FILENAME);
@@ -47,6 +74,7 @@ public class DataService {
         }
     }
 
+    @Deprecated
     public static String appendStat(String input, List<StatEntry> entries) {
         StringBuilder sb = new StringBuilder();
         sb.append("{stat: [");
@@ -71,6 +99,7 @@ public class DataService {
         return sb.toString();
     }
 
+    @Deprecated
     public static List<StatEntry> loadAllStat(Context ctx) {
         List<StatEntry> res = new ArrayList<>();
         try {
@@ -94,10 +123,12 @@ public class DataService {
         return e;
     }
 
+    @Deprecated
     public static void clearStat(Context ctx) {
         ctx.deleteFile(STAT_FILE);
     }
 
+    @Deprecated
     public static void saveStat(Context ctx, StatEntry entry) {
         try {
             FileOutputStream out = ctx.openFileOutput(STAT_FILE, Context.MODE_APPEND);

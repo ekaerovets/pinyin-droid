@@ -39,7 +39,7 @@ public class AjaxHelper {
         String resp;
     }
 
-    public static Response ajax(String url, String body) throws IOException {
+    private static Response ajax(String url, String body) throws IOException {
         URL u = new URL(url);
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
         conn.setRequestMethod("POST");
