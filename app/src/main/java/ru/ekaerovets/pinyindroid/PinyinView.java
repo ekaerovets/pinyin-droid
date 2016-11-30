@@ -80,19 +80,19 @@ public class PinyinView extends View {
 
         int from = isChars ? 4 : 0;
         for (int i = from; i < 5; i++) {
-            Item pin = data[i];
-            if (pin == null) {
+            Item item = data[i];
+            if (item == null) {
                 continue;
             }
             int x = i * 70 - 80;
-            for (int j = 0; j < pin.getValue().size(); j++) {
-                String text = pin.getValue().get(j);
+            for (int j = 0; j < item.getValue().size(); j++) {
+                String text = item.getValue().get(j);
                 float w = p.measureText(text);
                 canvas.drawText(text, x + 28 - w / 2, 120 + 20 * j, p);
             }
-            if (pin.isMark()) {
+            if (item.isMark()) {
                 float w = p.measureText("**");
-                canvas.drawText("**", x + 28 - w / 2, 120 + 20 * pin.getValue().size(), p);
+                canvas.drawText("**", x + 28 - w / 2, 120 + 20 * item.getValue().size(), p);
             }
         }
 
@@ -114,77 +114,10 @@ public class PinyinView extends View {
         invalidate();
     }
 
-    public double randNear() {
-        double r = Math.random();
-        return 0.97 + 0.06 * r;
-    }
-
-    public void freeDataHolder(StatEntry entry) {
-        if (holder != null) {
-            for (int i = 0; i < 10; i++) {
-                Item p = data[i];
-                if (p == null) {
-                    continue;
-                }
-                if (i < 5) {
-                    updateDiff(p, p.getAnswerStatus());
-                    entry.addItem(p.getAnswerStatus());
-                }
-                holder.freeChar(p);
-            }
-        }
-    }
-
-    public void toggle() {
-        if (data[4] != null) {
-            Difficulty prevStatus = data[4].getAnswerStatus();
-            if (prevStatus == Difficulty.REVIEW) {
-                data[4].setAnswerStatus(Difficulty.QUEUED);
-            } else if (prevStatus == Difficulty.QUEUED) {
-                data[4].setAnswerStatus(Difficulty.REVIEW);
-            } else {
-                data[4].setAnswerStatus(prevStatus != Difficulty.DIFFICULT ?
-                        Difficulty.DIFFICULT : null);
-            }
-            invalidate();
-        }
-    }
-
     public void setTrivia() {
         if (data[4] != null) {
             data[4].setAnswerStatus(Difficulty.TRIVIAL);
         }
-    }
-
-    private void updateDiff(Item p, Difficulty diff) {
-        if (diff == Difficulty.DIFFICULT) {
-            p.setDiff(0.4);
-        } else if (diff == null) {
-            // normal
-            p.setDiff(p.getDiff() / 5);
-            if (p.getDiff() < (0.01)) {
-                p.setDiff(-1);
-                p.setStage(1);
-            }
-        } else if (diff == Difficulty.TRIVIAL) {
-            p.setStage(1);
-            p.setDiff(-1);
-        } else if (diff == Difficulty.QUEUED) {
-            p.setStage(2);
-            p.setDiff(-1);
-        }
-    }
-
-    public void shiftLeft(StatEntry e) {
-        Item p = data[0];
-        if (p != null) {
-            updateDiff(p, p.getAnswerStatus());
-            e.addItem(p.getAnswerStatus());
-            holder.freeChar(p);
-        }
-        System.arraycopy(data, 1, data, 0, 9);
-        data[9] = holder.fetchItem();
-        invalidate();
     }
 
     @Override
