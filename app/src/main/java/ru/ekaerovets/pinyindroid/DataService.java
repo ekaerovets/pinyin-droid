@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import ru.ekaerovets.pinyindroid.model.SyncData;
+
 public class DataService {
 
     private static final String FILENAME = "data.json";

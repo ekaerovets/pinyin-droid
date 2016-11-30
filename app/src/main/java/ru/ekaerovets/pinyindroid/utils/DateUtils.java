@@ -1,4 +1,4 @@
-package ru.ekaerovets.pinyindroid;
+package ru.ekaerovets.pinyindroid.utils;
 
 import java.util.Date;
 

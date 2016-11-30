@@ -1,4 +1,4 @@
-package ru.ekaerovets.pinyindroid;
+package ru.ekaerovets.pinyindroid.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +11,11 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.Map;
+
+import ru.ekaerovets.pinyindroid.DataHolder;
+import ru.ekaerovets.pinyindroid.DataService;
+import ru.ekaerovets.pinyindroid.ShowItemCallback;
+import ru.ekaerovets.pinyindroid.model.Item;
 
 public class LearnActivity extends AppCompatActivity implements ShowItemCallback {
 

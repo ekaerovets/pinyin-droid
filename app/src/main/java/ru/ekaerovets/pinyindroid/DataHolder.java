@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ekaerovets.pinyindroid.model.Difficulty;
+import ru.ekaerovets.pinyindroid.model.Item;
+
 public class DataHolder {
 
 

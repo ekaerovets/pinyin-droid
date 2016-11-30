@@ -1,4 +1,4 @@
-package ru.ekaerovets.pinyindroid;
+package ru.ekaerovets.pinyindroid.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import ru.ekaerovets.pinyindroid.AjaxHandler;
+import ru.ekaerovets.pinyindroid.DataService;
 
 public class MainActivity extends AppCompatActivity {
 

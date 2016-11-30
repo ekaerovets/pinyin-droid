@@ -1,4 +1,4 @@
-package ru.ekaerovets.pinyindroid;
+package ru.ekaerovets.pinyindroid.service;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import ru.ekaerovets.pinyindroid.model.Item;
+import ru.ekaerovets.pinyindroid.model.Stat;
+import ru.ekaerovets.pinyindroid.model.SyncData;
 
 /**
  * User: dmitry.karyakin

@@ -1,6 +1,9 @@
-package ru.ekaerovets.pinyindroid;
+package ru.ekaerovets.pinyindroid.model;
 
 import java.util.List;
+
+import ru.ekaerovets.pinyindroid.model.Item;
+import ru.ekaerovets.pinyindroid.model.Stat;
 
 /**
  * @author karyakin dmitry

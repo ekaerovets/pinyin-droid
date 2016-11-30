@@ -1,7 +1,8 @@
-package ru.ekaerovets.pinyindroid;
+package ru.ekaerovets.pinyindroid.utils;
 
 import java.util.List;
-import java.util.Map;
+
+import ru.ekaerovets.pinyindroid.model.Item;
 
 /**
  * User: dmitry.karyakin

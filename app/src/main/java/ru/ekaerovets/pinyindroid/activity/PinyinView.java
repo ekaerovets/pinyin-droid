@@ -1,4 +1,4 @@
-package ru.ekaerovets.pinyindroid;
+package ru.ekaerovets.pinyindroid.activity;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -7,6 +7,11 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import ru.ekaerovets.pinyindroid.DataHolder;
+import ru.ekaerovets.pinyindroid.ShowItemCallback;
+import ru.ekaerovets.pinyindroid.model.Difficulty;
+import ru.ekaerovets.pinyindroid.model.Item;
 
 
 public class PinyinView extends View {

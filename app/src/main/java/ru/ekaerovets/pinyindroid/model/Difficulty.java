@@ -1,4 +1,4 @@
-package ru.ekaerovets.pinyindroid;
+package ru.ekaerovets.pinyindroid.model;
 
 /**
  * Created by laby on 08.08.16.

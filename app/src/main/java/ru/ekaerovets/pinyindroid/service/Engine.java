@@ -1,8 +1,14 @@
-package ru.ekaerovets.pinyindroid;
+package ru.ekaerovets.pinyindroid.service;
 
 import java.util.*;
 
-import static ru.ekaerovets.pinyindroid.Difficulty.*;
+import ru.ekaerovets.pinyindroid.DataService;
+import ru.ekaerovets.pinyindroid.model.Item;
+import ru.ekaerovets.pinyindroid.model.Stat;
+import ru.ekaerovets.pinyindroid.model.SyncData;
+import ru.ekaerovets.pinyindroid.utils.DateUtils;
+
+import static ru.ekaerovets.pinyindroid.model.Difficulty.*;
 
 /**
  * User: dmitry.karyakin
