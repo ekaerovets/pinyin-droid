@@ -8,8 +8,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import ru.ekaerovets.pinyindroid.DataHolder;
-import ru.ekaerovets.pinyindroid.ShowItemCallback;
+import ru.ekaerovets.pinyindroid.handlers.PinyinViewEventListener;
 import ru.ekaerovets.pinyindroid.model.Difficulty;
 import ru.ekaerovets.pinyindroid.model.Item;
 
@@ -17,9 +16,9 @@ import ru.ekaerovets.pinyindroid.model.Item;
 public class PinyinView extends View {
 
     DataHolder holder;
-    ShowItemCallback showCallback;
+    PinyinViewEventListener eventListener;
 
-    Item[] data = new Item[10];
+    Item[] data;
 
     Paint p = new Paint();
 
@@ -42,6 +41,10 @@ public class PinyinView extends View {
 
     public void setIsChars(boolean isChars) {
         this.isChars = isChars;
+    }
+
+    public void setData(Item[] data) {
+        this.data = data;
     }
 
     @Override
@@ -103,26 +106,8 @@ public class PinyinView extends View {
 
     }
 
-    public void setShowCallback(ShowItemCallback callback) {
-        this.showCallback = callback;
-    }
-
-    public void attachDataHolder(DataHolder holder) {
-        this.holder = holder;
-        for (int i = 0; i < 10; i++) {
-            if (i < 5) {
-                data[i] = null;
-            } else {
-                data[i] = holder.fetchItem();
-            }
-        }
-        invalidate();
-    }
-
-    public void setTrivia() {
-        if (data[4] != null) {
-            data[4].setAnswerStatus(Difficulty.TRIVIAL);
-        }
+    public void setEventListener(PinyinViewEventListener callback) {
+        this.eventListener = callback;
     }
 
     @Override
@@ -140,27 +125,8 @@ public class PinyinView extends View {
 
         boolean bottom = touchY > 120;
         int index = (int) ((touchX + 80) / 70);
-        if (index > 4) {
-            return true;
-        }
 
-        if (bottom && data[index] != null) {
-            showCallback.show(data[index]);
-        } else {
-            if (data[index] != null) {
-                Difficulty prevStatus = data[index].getAnswerStatus();
-                if (prevStatus == Difficulty.REVIEW) {
-                    data[index].setAnswerStatus(Difficulty.QUEUED);
-                } else if (prevStatus == Difficulty.QUEUED) {
-                    data[index].setAnswerStatus(Difficulty.REVIEW);
-                } else {
-                    data[index].setAnswerStatus(prevStatus != Difficulty.DIFFICULT ?
-                            Difficulty.DIFFICULT : null);
-                }
-            }
-        }
-
-        invalidate();
+        eventListener.onClickEvent(index, !bottom);
         return true;
     }
 }

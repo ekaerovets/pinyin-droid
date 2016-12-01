@@ -8,8 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import ru.ekaerovets.pinyindroid.AjaxHandler;
-import ru.ekaerovets.pinyindroid.DataService;
+import ru.ekaerovets.pinyindroid.handlers.SyncResultHandler;
+import ru.ekaerovets.pinyindroid.service.DataService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,58 +21,102 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    public void onPinyinsClick(View view) {
+    @Override
+    public void onResume() {
+        super.onResume();  // Always call the superclass method first
+        if (DataService.updateSummary(this)) {
+            updateSummary();
+        }
+    }
+
+    private void updateSummary() {
+        int[] summary = DataService.summary;
+        ((TextView) findViewById(R.id.tvLearnDiff)).setText(Html.fromHtml(
+                getSummaryRow(summary[0], summary[1], summary[2], summary[3], summary[4])));
+        ((TextView) findViewById(R.id.tvLearnDiff)).setText(Html.fromHtml(
+                getSummaryRow(summary[5], summary[6], summary[7], summary[8], summary[9])));
+        ((TextView) findViewById(R.id.tvLearnDiff)).setText(Html.fromHtml(
+                getSummaryRow(summary[10], summary[11], summary[12], summary[13], summary[14])));
+
+
+    }
+
+    private String getSummaryRow(int due, int suspended, int neww, int notDue, int total) {
+        String res = "<font color=\"#000000\">" + due + "</font>/";
+        res += "<font color=\"#FF00BB\">" + suspended + "</font>/";
+        res += "<font color=\"#0000FF\">" + neww + "</font>/";
+        res += "<font color=\"#008000\">" + notDue + "</font>/";
+        res += "<font color=\"#808080\">" + total + "</font>";
+        return res;
+    }
+
+    public void onMainLearnPinyins(View view) {
         Log.d("SPEED", "Load start");
         Intent intent = new Intent(this, LearnActivity.class);
         Bundle b = new Bundle();
         b.putBoolean("isChars", false);
+        b.putBoolean("prelearn", false);
         intent.putExtras(b);
         startActivity(intent);
     }
 
-    public void onCharsClick(View view) {
+    public void onMainPrelearnPinyins(View view) {
+
+    }
+
+    public void onMainGraphPinyins(View view) {
+
+    }
+
+    public void onMainLearnPinyins(View view) {
+        Log.d("SPEED", "Load start");
         Intent intent = new Intent(this, LearnActivity.class);
         Bundle b = new Bundle();
-        b.putBoolean("isChars", true);
+        b.putBoolean("isChars", false);
+        b.putBoolean("prelearn", false);
         intent.putExtras(b);
         startActivity(intent);
     }
 
-    public void onWordsClick(View view) {
-        startActivity(new Intent(this, WordsActivity.class));
+    public void onMainPrelearnPinyins(View view) {
+
+    }
+
+    public void onMainGraphPinyins(View view) {
+
+    }
+
+    public void onMainLearnPinyins(View view) {
+        Log.d("SPEED", "Load start");
+        Intent intent = new Intent(this, LearnActivity.class);
+        Bundle b = new Bundle();
+        b.putBoolean("isChars", false);
+        b.putBoolean("prelearn", false);
+        intent.putExtras(b);
+        startActivity(intent);
+    }
+
+    public void onMainPrelearnPinyins(View view) {
+
+    }
+
+    public void onMainGraphPinyins(View view) {
+
     }
 
     public void onSyncClick(View view) {
         progressDialog = ProgressDialog.show(this, "Sync", "Sync in progress");
-        String syncUrl = "http://192.168.0.117:8080/rest/sync_pinyin";
-        DataService.sync(this, null, syncUrl, new AjaxHandler() {
+        DataService.sync(this, new SyncResultHandler() {
             @Override
-            public void handle(View v, final int statusCode, String response) {
-                if (statusCode == 200) {
-                    DataService.saveToFile(MainActivity.this, response);
-                    DataService.clearStat(MainActivity.this);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "Sync success", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
+            public void onSyncCompleted(int code) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         progressDialog.dismiss();
+                        Toast.makeText(getApplicationContext(),
+                                code == 200 ? "Sync success" : "Sync failed, code = " + code, Toast.LENGTH_SHORT).show();
                     }
                 });
-                if (statusCode != 200) {
-                    Log.e("TAG", "Cannot sync");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "Sync failed, code = " + statusCode, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
             }
         });
     }

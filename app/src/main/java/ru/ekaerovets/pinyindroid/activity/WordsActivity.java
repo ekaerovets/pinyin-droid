@@ -11,8 +11,7 @@ import java.text.NumberFormat;
 import java.util.Date;
 import java.util.Map;
 
-import ru.ekaerovets.pinyindroid.DataHolder;
-import ru.ekaerovets.pinyindroid.DataService;
+import ru.ekaerovets.pinyindroid.service.DataService;
 import ru.ekaerovets.pinyindroid.model.Difficulty;
 import ru.ekaerovets.pinyindroid.model.Item;
 

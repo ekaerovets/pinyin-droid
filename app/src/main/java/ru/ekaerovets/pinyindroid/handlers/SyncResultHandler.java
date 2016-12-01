@@ -1,4 +1,4 @@
-package ru.ekaerovets.pinyindroid;
+package ru.ekaerovets.pinyindroid.handlers;
 
 /**
  * User: dmitry.karyakin
@@ -6,6 +6,6 @@ package ru.ekaerovets.pinyindroid;
  */
 public interface SyncResultHandler {
 
-    void onSyncCompleted(boolean result);
+    void onSyncCompleted(int code);
 
 }

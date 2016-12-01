@@ -1,8 +1,10 @@
 package ru.ekaerovets.pinyindroid.service;
 
+import java.io.IOException;
 import java.util.*;
 
-import ru.ekaerovets.pinyindroid.DataService;
+import android.content.Context;
+
 import ru.ekaerovets.pinyindroid.model.Item;
 import ru.ekaerovets.pinyindroid.model.Stat;
 import ru.ekaerovets.pinyindroid.model.SyncData;
@@ -43,23 +45,34 @@ public class Engine {
     private Set<Character> knownItems;
     private int probSum = 0;
     private int cntNormal = 0;
+    private int cntTriviaDue = 0;
+
+    private Map<String, String> charMap;
+    private Map<String, String> pinyinMap;
+    private Map<String, String> pinyinSimilarMap;
+
+    private static final String SPECIAL = "????????????????????????";
+    private static final String SPECIAL_UNTONED = "aeiou?";
+
+    private static final String[] FONT_COLORS = {"#707070", "#bbc11c", "#a90000", "#009839", "#0002AA"};
 
     // Create the engine. Type is one of c, p or w.
     // bufSize is normally 5 for chars/pinyins and 2 for words
     // Return value is the array of 5 chars with their display values
-    public Engine(char type, boolean prelearn) {
+    public Engine(Context ctx, char type, boolean prelearn) throws IOException {
         this.type = type;
         this.prelearn = prelearn;
         bufSize = type == 'w' ? 2 : 5;
         buffer = new Item[bufSize];
         stat.setSessionStart(new Date());
-        data = DataService.loadFromFile();
+        data = DataService.loadFromFile(ctx);
         getKnownItems();
         prepareLists();
+        populateBuf();
     }
 
     // Close and save the current session.
-    public void shutdown() {
+    public void shutdown() throws IOException {
         for (Item item: buffer) {
             freeItem(item);
         }
@@ -120,10 +133,10 @@ public class Engine {
         }
     }
 
-    public void toggleMark() {
+    public void toggleMark(boolean newValue) {
         Item item = getCurrentItem();
         if (item != null) {
-            item.setMark(!item.isMark());
+            item.setMark(newValue);
         }
     }
 
@@ -186,6 +199,57 @@ public class Engine {
         }
     }
 
+    public String getPinyin(Item item) {
+        return item != null ? pinyinMap.get(item.getWord()) : null;
+    }
+
+    public String getPinyinSimilar(Item item) {
+        if (item == null) {
+            return null;
+        }
+        Map<String, String> similar = new HashMap<>();
+        String[] parts = item.getPinyin().split("/");
+        for (String pp: parts) {
+            if (pp == null) {
+                continue;
+            }
+            pp = pp.trim();
+            if (pp.length() == 0) {
+                continue;
+            }
+            for (int i = 0; i < pp.length(); i++) {
+                int index = SPECIAL.indexOf(pp.charAt(i));
+                if (index != -1) {
+                    String letter = SPECIAL_UNTONED.substring(index / 4, index / 4 + 1);
+                    pp = pp.substring(0, i) + letter + pp.substring(i + 1, pp.length());
+                    break;
+                }
+            }
+            if (!similar.containsKey(pp)) {
+                similar.put(pp, pinyinMap.get(pp));
+            }
+        }
+        if (similar.size() == 1) {
+            return similar.values().iterator().next();
+        } else {
+            String res = "";
+            boolean isFirst = true;
+            for (Map.Entry<String, String> e: similar.entrySet()) {
+                if (!isFirst) {
+                    res += "<br>";
+                }
+                isFirst = false;
+                res += e.getKey() + ": " + e.getValue();
+            }
+            return res;
+        }
+
+    }
+
+    public String getMeaning(Item item) {
+        return item != null ? charMap.get(item.getWord()) : null;
+    }
+
     private void ensureCompoundFlags(Item item) {
         if (item.getFlags() == null) {
             item.setFlags(new byte[item.getWord().length()]);
@@ -213,11 +277,11 @@ public class Engine {
         }
     }
 
-    private double getProb() {
+    public double getProb() {
         return probSum / 62.5;
     }
 
-    private double getQueued() {
+    public int getQueued() {
         if (prelearn) {
             return queue.size();
         }
@@ -230,11 +294,15 @@ public class Engine {
         return size;
     }
 
-    private double getLearning() {
+    public int getLearning() {
         if (prelearn) {
             return 0;
         }
         return cntNormal;
+    }
+
+    public int getReviewCount() {
+        return cntTriviaDue;
     }
 
     private Item fetchNext() {
@@ -248,7 +316,7 @@ public class Engine {
         }
         probSum = 0;
         cntNormal = 0;
-        int cntTriviaDue = 0; // number of trivia characters ready for review in active
+        cntTriviaDue = 0; // number of trivia characters ready for review in active
         int cntLearnWait = 0; // number of learn characters that were shown quite recently
         int cntLearnActive = 0; // number of learn characters ready for review
 
@@ -585,6 +653,45 @@ public class Engine {
                 queue.add(item);
             } else {
                 active.add(item);
+            }
+        }
+    }
+
+    private void initMaps() {
+        charMap = new HashMap<>();
+        for (Item item: data.getChars()) {
+            charMap.put(item.getWord(), item.getMeaning());
+        }
+        pinyinMap = new HashMap<>();
+        pinyinSimilarMap = new HashMap<>();
+        for (Item item: data.getPinyins()) {
+            String key = item.getWord();
+            String value = item.getPinyin();
+            pinyinMap.put(key, value);
+            String[] parts = value.split("/");
+            for (String part: parts) {
+                if (part == null) {
+                    continue;
+                }
+                part = part.trim();
+                if (part.length() > 0) {
+                    int tone = 0;
+                    for (int i = 0; i < part.length(); i++) {
+                        int index = SPECIAL.indexOf(part.charAt(i));
+                        if (index != -1) {
+                            tone = (index % 4) + 1;
+                            String letter = SPECIAL_UNTONED.substring(index / 4, index / 4 + 1);
+                            part = part.substring(0, i) + letter + part.substring(i + 1, part.length());
+                            break;
+                        }
+                    }
+                    String html = "<font color=\"" + FONT_COLORS[tone] + "\">" + key + "</font>";
+                    if (pinyinMap.containsKey(part)) {
+                        pinyinMap.put(part, pinyinMap.get(part) + html);
+                    } else {
+                        pinyinMap.put(part, html);
+                    }
+                }
             }
         }
     }

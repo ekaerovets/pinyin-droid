@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="10/33/1299"
-            android:id="@+id/textView7"
+            android:id="@+id/tvLearnDue"
             android:layout_weight="1" />
 
         <TextView
@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="122/159 (33%)"
-            android:id="@+id/textView8"
+            android:id="@+id/tvLearnReview"
             android:layout_weight="1" />
 
         <TextView
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="999"
-            android:id="@+id/textView9" />
+            android:id="@+id/tvLearnCounter" />
     </LinearLayout>
 
     <ru.ekaerovets.pinyindroid.activity.PinyinView
@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/tvZi"
+            android:id="@+id/tvLearnZi"
             android:layout_below="@+id/pinyinView"
             android:layout_centerHorizontal="true"
             android:textColor="#000000"
@@ -63,8 +63,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/tvPinyin"
-            android:layout_below="@+id/tvZi"
+            android:id="@+id/tvLearnPinyin"
+            android:layout_below="@+id/tvLearnZi"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:text="pin"
@@ -74,8 +74,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/tvMeaning"
-            android:layout_below="@+id/tvPinyin"
+            android:id="@+id/tvLearnMeaning"
+            android:layout_below="@+id/tvLearnPinyin"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:text="Lorem ipsum amet dolor omnis deus with the red bananas"
@@ -85,25 +85,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/tvDiff"
-            android:layout_below="@+id/tvMeaning"
+            android:id="@+id/tvLearnDiff"
+            android:layout_below="@+id/tvLearnMeaning"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:text="•••"
             android:textSize="30dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/tvSimilar"
-            android:textColor="#000000"
-            android:textSize="24dp"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/tvDiff"
-            android:layout_gravity="center_horizontal"
-            android:lines="3"
-            android:layout_weight="1" />
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="fill_parent"-->
+            <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
+            <!--android:id="@+id/tvSimilar"-->
+            <!--android:textColor="#000000"-->
+            <!--android:textSize="24dp"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:layout_below="@+id/tvDiff"-->
+            <!--android:layout_gravity="center_horizontal"-->
+            <!--android:lines="3"-->
+            <!--android:layout_weight="1" />-->
 
         <LinearLayout
             android:orientation="horizontal"
@@ -117,10 +117,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="trivia"
-                android:id="@+id/btnTrivia"
-                android:layout_alignTop="@+id/button"
-                android:layout_toEndOf="@+id/tvStat"
+                android:text="T"
+                android:id="@+id/btnLearnTrivia"
                 android:onClick="onTriviaClick" />
 
             <Button
@@ -128,10 +126,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="x"
-                android:id="@+id/button"
-                android:onClick="onLearnToggleClick"
-                android:layout_alignTop="@+id/btnNext"
-                android:layout_centerHorizontal="true"
+                android:id="@+id/btnLearnDiff"
+                android:onClick="onLearnDiffClick"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp" />
 
@@ -140,9 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text=">>"
-                android:id="@+id/btnNext"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"
+                android:id="@+id/btnLearnNext"
                 android:onClick="onLearnNextClick" />
 
         </LinearLayout>
@@ -150,42 +144,35 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="55dp"
-            android:weightSum="3">
+            android:weightSum="3"
+            android:layout_height="55dp" >
 
             <Button
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="trivia"
-                android:id="@+id/button13"
-                android:layout_alignTop="@+id/button"
-                android:layout_toEndOf="@+id/tvStat"
-                android:onClick="onTriviaClick" />
+                android:text="N"
+                android:id="@+id/btnLearnNew"
+                android:onClick="onLearnNewClick" />
 
             <CheckBox
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Mark"
-                android:id="@+id/chbMark"
+                android:id="@+id/chbLearnMark"
                 android:checked="false"
-                android:onClick="onMarkClick"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
+                android:onClick="onToggleMark"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp" />
 
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="trivia"
-                android:id="@+id/button14"
-                android:layout_alignTop="@+id/button"
-                android:layout_toEndOf="@+id/tvStat"
-                android:onClick="onTriviaClick"
-                />
+            <!--<Button-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:text="trivia"-->
+                <!--android:id="@+id/btnLearnMore"-->
+                <!--/>-->
 
         </LinearLayout>
 

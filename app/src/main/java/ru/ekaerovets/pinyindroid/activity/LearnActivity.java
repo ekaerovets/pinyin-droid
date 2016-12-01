@@ -7,126 +7,139 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Date;
-import java.util.Map;
 
-import ru.ekaerovets.pinyindroid.DataHolder;
-import ru.ekaerovets.pinyindroid.DataService;
-import ru.ekaerovets.pinyindroid.ShowItemCallback;
+import ru.ekaerovets.pinyindroid.handlers.PinyinViewEventListener;
 import ru.ekaerovets.pinyindroid.model.Item;
+import ru.ekaerovets.pinyindroid.model.Stat;
+import ru.ekaerovets.pinyindroid.service.Engine;
 
-public class LearnActivity extends AppCompatActivity implements ShowItemCallback {
+public class LearnActivity extends AppCompatActivity implements PinyinViewEventListener {
 
-    private DataHolder dataHolder;
     private PinyinView pinyinView;
-
-    private StatEntry statEntry;
-
-    int count = 0;
+    private Engine engine;
 
     NumberFormat formatter = new DecimalFormat("#0.00");
-    NumberFormat cumulFormatter = new DecimalFormat("#0.0000");
-    private Item current;
     private boolean isChars;
+    private boolean prelearn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle b = getIntent().getExtras();
         isChars = b.getBoolean("isChars");
+        prelearn = b.getBoolean("prelearn");
         setContentView(R.layout.activity_learn);
         pinyinView = (PinyinView) findViewById(R.id.pinyinView);
-        pinyinView.setShowCallback(this);
+        pinyinView.setEventListener(this);
         pinyinView.setIsChars(isChars);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        String json = DataService.loadFromFile(this);
-        dataHolder = new DataHolder(json, isChars ? 1 : 2);
-        pinyinView.attachDataHolder(dataHolder);
-        statEntry = new StatEntry();
-        statEntry.setType(isChars ? 'c' : 'p');
-        count = 0;
-        ((TextView) findViewById(R.id.tvZi)).setText("");
-        ((TextView) findViewById(R.id.tvPinyin)).setText("");
-        ((TextView) findViewById(R.id.tvMeaning)).setText("");
-        ((TextView) findViewById(R.id.tvDiff)).setText("");
-        ((CheckBox) findViewById(R.id.chbMark)).setChecked(false);
-        ((TextView) findViewById(R.id.tvSimilar)).setText("");
-        statEntry.setSessionStart(new Date());
+        try {
+            engine = new Engine(this, isChars ? 'c' : 'p', prelearn);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        pinyinView.freeDataHolder(statEntry);
-        DataService.saveToFile(this, dataHolder.getJson());
-        statEntry.setSessionEnd(new Date());
-        DataService.saveStat(this, statEntry);
+        engine.shutdown();
+        finish();
     }
 
-    private String getNotNull(String s) {
-        return s == null ? "" : s;
+    private void displayItem(Item item) {
+        ((TextView) findViewById(R.id.tvLearnZi)).setText(item == null ? "" : item.getWord());
+        ((TextView) findViewById(R.id.tvLearnPinyin)).setText(item == null ? "" : (isChars ? engine.getPinyin(item) : item.getPinyin()));
+        ((TextView) findViewById(R.id.tvLearnMeaning)).setText(item == null ? "" : (isChars ? item.getMeaning() : engine.getMeaning(item)));
+        ((TextView) findViewById(R.id.tvLearnDiff)).setText(Html.fromHtml(getDiffStr(item)));
     }
 
-    private String formatDiff(double d) {
-        return formatter.format(10 / d);
-    }
+    private void updateStat() {
+        int nLearning = engine.getLearning();
+        int nQueued = engine.getQueued();
+        int nTriviaDue = engine.getReviewCount();
+        String html = "<font color=\"#808080\">" + nLearning + "</font>/<font color=\"#FF8000\">" +
+                nQueued + "</font>/<font color=\"00B000\">" + nTriviaDue + "</font>";
+        ((TextView) findViewById(R.id.tvLearnDue)).setText(Html.fromHtml(html));
 
-    @Override
-    public void show(Item p) {
-        current = p;
-        ((TextView) findViewById(R.id.tvZi)).setText(p == null ? "" : p.getKey());
-        ((TextView) findViewById(R.id.tvPinyin)).setText(p == null ? "" : p.getValueOrig());
-        ((TextView) findViewById(R.id.tvMeaning)).setText(p == null ? "" : getNotNull(dataHolder.getValue(p, isChars)));
-        ((TextView) findViewById(R.id.tvDiff)).setText(p == null ? "" : formatDiff(p.getDiff()));
-        ((CheckBox) findViewById(R.id.chbMark)).setChecked(p != null && p.isMark());
-        String similar = null;
-        if (isChars) {
-            if (p != null && p.getRadix() != null) {
-                similar = "<font color=\"#00ff00\">" + p.getRadix() + "</font>";
-            }
+        Stat stat = engine.getStat();
+        int reviewCorrect = stat.getReviewCorrect();
+        int reviewTotal = reviewCorrect + stat.getReviewWrong();
+        String review;
+        if (reviewTotal == 0) {
+            review = "-/-";
         } else {
-            if (p != null) {
-                similar = dataHolder.getPinyinSimilar(p);
+            review = reviewCorrect + "/" + reviewTotal + " (" + (reviewCorrect * 100 / reviewTotal) + "%)";
+        }
+        ((TextView) findViewById(R.id.tvLearnReview)).setText(review);
+        ((TextView) findViewById(R.id.tvLearnCounter)).setText(engine.getAnswerCount());
+    }
+
+    private String getDiffStr(Item item) {
+        if (item == null) {
+            return "";
+        }
+        String html = "";
+        if (item.getStage() == 1) {
+            html =  "<font color=\"#00B000\">" + item.getDiff() + "</font>";
+        } else if (item.getStage() == 2) {
+            if (item.getDiff() == 25) {
+                html = "<font color=\"#FF0000\">•</font>";
+            } else if (item.getDiff() == 125) {
+                html = "<font color=\"#FF8000\">••</font>";
+            } else if (item.getDiff() == 625) {
+                html = "<font color=\"#80FF00\">•••</font>";
             }
         }
-        ((TextView) findViewById(R.id.tvSimilar)).setText(similar == null ? "" : Html.fromHtml(similar),
-                TextView.BufferType.SPANNABLE);
+        return html;
     }
 
-    public void onLearnNextClick(View v) {
-        pinyinView.shiftLeft(statEntry);
-        Map<String, String> stat = dataHolder.getStat();
-        String s = stat.get("new") + " + " + stat.get("learn") + "\n" +
-                cumulFormatter.format(Double.parseDouble(stat.get("sum")));
-        ((TextView) findViewById(R.id.tvStat)).setText(s);
-        int reviewSuccess = Integer.parseInt(stat.get("review_success"));
-        int reviewFail = Integer.parseInt(stat.get("review_fail"));
-        String review = reviewSuccess + "/" + (reviewSuccess + reviewFail) + " (" + formatter.format(100.0 * reviewSuccess / (reviewSuccess + reviewFail)) + "%)";
-        ((TextView) findViewById(R.id.tvCount)).setText(Integer.toString(++count) + "\n" + review);
-    }
-
-    public void onMarkClick(View v) {
-        boolean checked = ((CheckBox) findViewById(R.id.chbMark)).isChecked();
-        if (current != null) {
-            current.setMark(checked);
-            pinyinView.invalidate();
-        }
-    }
-
-    public void onLearnToggleClick(View v) {
-        pinyinView.toggle();
-    }
-
-    public void onTriviaClick(View v) {
-        pinyinView.setTrivia();
+    public void invalidateView() {
+        pinyinView.setData(engine.getDisplayItems());
         pinyinView.invalidate();
     }
 
+    public void onLearnNextClick(View v) {
+        engine.next();
+        updateStat();
+        displayItem(null);
+        invalidateView();
+    }
 
+    public void onLearnDiffClick(View v) {
+        engine.toggleDiff();
+        invalidateView();
+    }
+
+    public void onTriviaClick(View v) {
+        engine.toggleTrivia();
+        invalidateView();
+    }
+
+    public void onLearnNewClick(View v) {
+        engine.toggleNew();
+        invalidateView();
+    }
+
+    public void onToggleMark(View v) {
+        boolean checked = ((CheckBox) findViewById(R.id.chbMark)).isChecked();
+        engine.toggleMark(checked);
+        invalidateView();
+    }
+
+    @Override
+    public void onClickEvent(int index, boolean isUp) {
+        if (isUp) {
+            engine.toggle(index);
+        } else {
+            displayItem(engine.getDisplayItems()[index]);
+        }
+    }
 }
